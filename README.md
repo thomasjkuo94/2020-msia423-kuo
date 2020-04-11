@@ -1,3 +1,47 @@
+# MSiA 423 Project Charter - Predicting Popular Airbnb Homestays in San Francisco
+
+This application will be developed by Thomas Kuo, with QA support from Catherine Yang.
+
+### Vision:
+To increase engagement with the platform, particularly with a focus on increasing successful bookings and stays. 
+
+### Mission:
+Using number of reviews as a proxy for the number of stays, understand which features on a listing are primary drivers for the number of reviews a listing receives. This will inform marketplace strategy by building knowledge surrounding what attributes are considered most desirable for a listing. The application will use a Random Forest to classify a listing into 1 of 5 categories based on how many reviews per month they receive. Data will be pulled from [http://insideairbnb.com/get-the-data.html].
+An understanding of the features driving a booking decision can stimulate conversations between the company and its host partners to change listing attributes to those that are more likely to be booked.
+
+### Success Criteria:
+* Success would be measured by AUC and Accuracy as this is a classification problem that lends itself to these metrics. If at least 70% of the listings are correctly classified into their popularity category, the model can be deemed successful.
+* Success would be measured by an increase in listings categorized to bins that are considered "popular", as it implies that those listings are being booked more.
+
+# Backlog
+
+* Initiative 1: Data Preparation and Model Development
+  * Epic 1: Understand and Clean Data
+    * Story 1: Identify predictors that can be removed from the dataset (medium, planned)
+    * Story 2: Check variable types to ensure correctness (medium, planned)
+    * Story 3: Change certain formatting (e.g. remove dollar signs) to simplify work (medium, planned)
+    * Story 4: Look at predictor and response distribution (medium, planned)
+  * Epic 2: Engineer Features
+    * Story 1: Impute NAs where sensible (short, planned)
+    * Story 2: Bin the response variable based on distribution of bookings per month (short, planned)
+  * Epic 3: Develop Model
+    * Story 1: Use a baseline of a logistic regression (short, planned)
+    * Story 2: Create models using Random Forest, XGBoost, GB tree, and Decision Tree (medium, planned)
+    * Story 3: Revise features if necessary based on model AUC and Accuracy (large, planned)
+
+* Initiative 2: Create App Backend
+  * Epic 1: Create relational database to store data
+    * Story 1: Pipe data to database from website (icebox)
+    * Story 2: Store data on AWS (icebox)
+    * Story 3: Test that data fed from database yields same results as offline (icebox)
+
+Initiative 3: Create App Frontend
+  * Epic 1: Create front page of the app / Flask Development
+    * Story 1: Create app input, select certain features to drive model (icebox)
+    * Story 2: Display Model Output (icebox)
+
+
+
 # MSiA423 Template Repository
 
 <!-- toc -->
