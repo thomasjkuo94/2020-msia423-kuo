@@ -146,13 +146,13 @@ docker run --env-file=config/config.env --mount type=bind,source=$(pwd)/data,tar
 
 This command runs the `run_s3.py` command in the `airbnb` image to push source data into S3.
 `--env-file=config/config/env` feeds the environment variables
-`--mount type=bind,source=“$(pwd)“/data,target=/app/data` mounts the source data so it persists in `data/`
+`--mount type=bind,source=$(pwd)/data,target=/app/data` mounts the source data so it persists in `data/`
 
 
 ### 4. Configurable database creation
 
 There are two ways to create the database, by configuration.
---local` or `-l` flags can be used to push the database locally, while `--rds` or `-r` flags can be used to push the database to RDS.
+`--local` or `-l` flags can be used to push the database locally, while `--rds` or `-r` flags can be used to push the database to RDS.
 
 Local Database:
 ```bash
