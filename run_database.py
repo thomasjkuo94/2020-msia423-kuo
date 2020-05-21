@@ -40,7 +40,7 @@ args = parser.parse_args()
 Base = declarative_base()  
 
 class Airbnb(Base):
-    """Create a data model for the database to be set up for capturing songs """
+    """Create a data model for the database to be set up for capturing features related to Airbnb listings in San Francisco """
     __tablename__ = 'abb_feat_and_resp'
     id = Column(Integer, primary_key=True)
     years_as_host = Column(Float, unique=False, nullable=True)
@@ -73,7 +73,7 @@ class Airbnb(Base):
         return '<Airbnb %r>' % self.id
 
 def _truncate_abb(session):
-    """Deletes tweet scores table if rerunning and run into unique key error."""
+    """Deletes abb_feat_and_resp table if rerunning and run into unique key error."""
 
     session.execute('''DELETE FROM abb_feat_and_resp''')
 
@@ -104,12 +104,13 @@ if __name__ == '__main__':
         # set up mysql connection
         engine = sql.create_engine(engine_string)
 
-        # create the tracks table
-        Base.metadata.create_all(engine)
+        # create the airbnb table
+        create_db(engine=engine)
 
         # create a db session
-        Session = sessionmaker(bind=engine)  
-        session = Session()
+        session = get_session(engine=engine)
+        #Session = sessionmaker(bind=engine)  
+        #session = Session()
         logger.info("Airbnb Database created in AWS RDS")
 
         """ TODO: Once data is finalized and ready to be pushed, modify this appropriately.
@@ -141,7 +142,7 @@ if __name__ == '__main__':
         session.close()
 
     #if user chooses local as argument
-    elif args.local:
+    if args.local:
         logger.info("Airbnb Database location: local database")
 
         # If "truncate" is given as an argument (i.e. python models.py --truncate), then empty the abb_feat_and_resp table)
