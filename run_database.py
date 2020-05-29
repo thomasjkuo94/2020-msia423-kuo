@@ -44,6 +44,7 @@ class Airbnb(Base):
     __tablename__ = 'abb_feat_and_resp'
     id = Column(Integer, primary_key=True)
     years_as_host = Column(Float, unique=False, nullable=True)
+    host_response_time = Column(String(100), unique=False, nullable=True)
     host_response_rate = Column(Float, unique=False, nullable=True)
     host_is_superhost = Column(Integer, unique=False, nullable=True)
     host_has_profile_pic = Column(Integer, unique=False, nullable=True)
@@ -61,12 +62,13 @@ class Airbnb(Base):
     security_deposit = Column(Float, unique=False, nullable=True)
     cleaning_fee = Column(Float, unique=False, nullable=True)
     amenities_count = Column(Integer, unique=False, nullable=True)
+    neighbourhood_cleansed = Column(String(100), unique=False, nullable=True)
     minimum_nights_cat = Column(Integer, unique=False, nullable=True)
     maximum_nights_cat = Column(Integer, unique=False, nullable=True)
     instant_bookable = Column(Integer, unique=False, nullable=True)
     cancellation_policy = Column(String(100), unique=False, nullable=True)
-    require_guest_phone_verification = Column(String(100), unique=False, nullable=True)
-    require_guest_profile_picture = Column(String(100), unique=False, nullable=True)
+    require_guest_phone_verification = Column(Integer, unique=False, nullable=True)
+    require_guest_profile_picture = Column(Integer, unique=False, nullable=True)
     review_per_month_bin = Column(Integer, unique=False, nullable=True)
       
     def __repr__(self):
@@ -109,8 +111,7 @@ if __name__ == '__main__':
 
         # create a db session
         session = get_session(engine=engine)
-        #Session = sessionmaker(bind=engine)  
-        #session = Session()
+
         logger.info("Airbnb Database created in AWS RDS")
 
         """ TODO: Once data is finalized and ready to be pushed, modify this appropriately.
@@ -160,6 +161,7 @@ if __name__ == '__main__':
                 session.close()
 
         create_db(engine_string=config.SQLALCHEMY_DATABASE_URI)
+        logger.info("Airbnb Database created locally")
 
-    else:
+    if not (args.rds | args.local):
         logger.info("Please pass a valid argument: --local, --l for local & --rds, -r for rds")
