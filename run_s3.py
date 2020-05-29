@@ -10,8 +10,8 @@ logger = logging.getLogger(__file__)
 if __name__ == '__main__':
     source_file = config.SOURCE_DATA_URL.split("/")[-1]
     output_filepath = config.AIRBNB_RAW_LOCATION
-    access_key = os.environ['AWS_ACCESS_KEY']
-    secret_access_key = os.environ['SECRET_ACCESS_KEY']
+    access_key = os.environ['AWS_ACCESS_KEY_ID']
+    secret_access_key = os.environ['AWS_SECRET_ACCESS_KEY']
 
     #download gzipped data from InsideAirbnb website
     fetch_zipfile(config.SOURCE_DATA_URL)
