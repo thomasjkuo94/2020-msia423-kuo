@@ -174,7 +174,14 @@ def tune_and_score(imputed_filepath, seed, tuning_grid,
     return search_gbt, cv_auc, cv_accu, test_auc, test_accu
 
 def one_hot_encode(df):
-    #ONEHOTENCODE
+    '''A function to one-hot encode certain categorical variables
+    
+    Args:
+        df(dataframe): dataframe of imputed data
+
+    Returns:
+        encoded_df (dataframe): one-hot encoded dataframe
+    '''
     categorical_columns = ["host_response_time",
                             "room_type",
                             "property_type_cat",
