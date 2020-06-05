@@ -30,6 +30,7 @@ SOURCE_DATA_URL = "http://data.insideairbnb.com/united-states/ca/san-francisco/2
 AIRBNB_RAW_LOCATION = path.join(PROJECT_HOME,'data/listings.csv')
 S3_BUCKET = "nw-tkj775-s3"
 S3_PATH_LOCATION = "data/listings.csv"
+#CREATE_RDS = False
 
 # cleaning script configurations
 CLEAN_OUTPUT_LOCATION = path.join(PROJECT_HOME,'data/clean.csv')
