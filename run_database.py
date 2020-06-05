@@ -69,7 +69,7 @@ class Airbnb(Base):
     cancellation_policy = Column(String(100), unique=False, nullable=True)
     require_guest_phone_verification = Column(Integer, unique=False, nullable=True)
     require_guest_profile_picture = Column(Integer, unique=False, nullable=True)
-    review_per_month_bin = Column(Integer, unique=False, nullable=True)
+    reviews_per_month_bin = Column(Integer, unique=False, nullable=True)
       
     def __repr__(self):
         return '<Airbnb %r>' % self.id
@@ -99,6 +99,7 @@ def create_db(engine=None, engine_string=None):
 
     Base.metadata.create_all(engine)
 
+
 if __name__ == '__main__':
     #if user chooses rds as argument
     if args.rds:
@@ -115,29 +116,6 @@ if __name__ == '__main__':
         logger.info("Airbnb Database created in AWS RDS")
 
         """ TODO: Once data is finalized and ready to be pushed, modify this appropriately.
-        # add a record/track
-        track1 = Airbnb(artist="Britney Spears", album="Circus", title="Radar")  
-        session.add(track1)
-        session.commit()
-
-        logger.info("Database created with song added: Radar by Britney spears from the album, Circus")  
-        track2 = Airbnb(artist="Tayler Swift", album="Red", title="Red")  
-        session.add(track2)
-
-        # To add multiple rows
-        # session.add_all([track1, track2])
-
-
-        session.commit()   
-        logger.info("Database created with song added: Red by Tayler Swift from the album, Red")
-
-        # query records
-        track_record = session.query(Airbnb.title, Airbnb.album).filter_by(artist="Britney Spears").first() 
-        print(track_record)
-
-        query = "SELECT * FROM tracks WHERE artist LIKE '%%Britney%%'"
-        result = session.execute(query)
-        print(result.first().items())
         """
 
         session.close()

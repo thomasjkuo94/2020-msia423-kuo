@@ -2,6 +2,7 @@ import os
 from config import config
 import logging
 import argparse
+import pickle
 
 from src.train import get_model_data
 from src.train import tune_and_score
@@ -17,6 +18,8 @@ if __name__ == '__main__':
     feature_output_path = config.FEATURE_OUTPUT_LOCATION
     imputed_output_path = config.IMPUTED_OUTPUT_LOCATION
     scores_output_path = config.SCORES_OUTPUT_LOCATION
+    trained_model_output_path = config.SAVED_MODEL_LOCATION
+    encoder_output_path = config.SAVED_ENCODER_LOCATION
     seed = config.RANDOM_STATE
     access_key = os.environ.get('AWS_ACCESS_KEY_ID')
     secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
@@ -79,7 +82,8 @@ if __name__ == '__main__':
     if args.full_model:
         try:
             trained_model = train_model(imputed_output_path, seed, config.BEST_LR, config.BEST_NUM_EST,
-                                config.BEST_MAX_DEPTH, config.BEST_SUBSAMPLE)
+                                config.BEST_MAX_DEPTH, config.BEST_SUBSAMPLE, encoder_output_path)
+            pickle.dump(trained_model, open(trained_model_output_path, "wb"))
             logger.info("Trained model successfully created")
         except Exception:
             logger.error("Trained model was not fit successfully")

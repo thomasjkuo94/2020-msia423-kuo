@@ -163,6 +163,8 @@ BOOKING_FEATURES = [
 #Training Full Model
 IMPUTED_OUTPUT_LOCATION = path.join(PROJECT_HOME,'data/imputed.csv')
 SCORES_OUTPUT_LOCATION = path.join(PROJECT_HOME,'data/params_and_scores.txt')
+SAVED_MODEL_LOCATION = path.join(PROJECT_HOME,'data/trained_model.sav')
+SAVED_ENCODER_LOCATION = path.join(PROJECT_HOME,'data/encoder.sav')
 RANDOM_STATE = 1414
 BEST_LR = 0.06144119459702984
 BEST_NUM_EST = 525

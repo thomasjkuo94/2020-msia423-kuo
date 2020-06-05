@@ -4,6 +4,7 @@ import logging
 import pandas as pd
 import numpy as np
 import math
+import pickle
 from scipy import stats
 
 #Imputer
@@ -148,7 +149,7 @@ def tune_and_score(imputed_filepath, seed, tuning_grid,
     '''
     df = pd.read_csv(imputed_filepath)
 
-    df = one_hot_encode(df)
+    df = one_hot_encode(df)[0]
 
     #get predictors and response of the dataset
     predictors = df.loc[:, df.columns != "reviews_per_month_bin"]
@@ -190,7 +191,7 @@ def one_hot_encode(df):
     #define encoder
     encoder = OneHotEncoder(drop="first")
     #fit to categorical columns
-    encoder.fit(df[categorical_columns])
+    encoder = encoder.fit(df[categorical_columns])
 
     encoded_df = df
     df_onehot = pd.DataFrame(
@@ -202,7 +203,7 @@ def one_hot_encode(df):
     encoded_df = encoded_df[[c for c in encoded_df if c not in ["reviews_per_month_bin"]] 
            + ["reviews_per_month_bin"]]
     
-    return encoded_df
+    return encoded_df, encoder
 
 def test_metrics(classifier, predictors, response, seed):
     '''Score classifier on test set
@@ -240,7 +241,7 @@ def test_metrics(classifier, predictors, response, seed):
     print("Test Accuracy: ", test_accu)
     return test_auc, test_accu
 
-def train_model(imputed_filepath, seed, best_lr, best_numest, best_maxd, best_subsamp):
+def train_model(imputed_filepath, seed, best_lr, best_numest, best_maxd, best_subsamp, encoder_filepath):
     '''Train model on full data and best hyperparameters
     
     Args:
@@ -250,12 +251,14 @@ def train_model(imputed_filepath, seed, best_lr, best_numest, best_maxd, best_su
         best_numest (int): the best number of estimators
         best_maxd (int): the best max_depth
         best_subsamp (str or list): the best number of sub samples
+        encoder_filepath (str): file path to save encoder for predictions
 
     Returns:
         trained_model (TMO): trained model object to predict unknowns
     '''
     df = pd.read_csv(imputed_filepath)
-    df = one_hot_encode(df)
+    df, encoder = one_hot_encode(df)
+    pickle.dump(encoder, open(encoder_filepath, "wb"))
 
     predictors = df.loc[:, df.columns != "reviews_per_month_bin"]
     response = df.loc[:, "reviews_per_month_bin"]
