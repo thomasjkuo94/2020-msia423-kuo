@@ -54,7 +54,7 @@ class Airbnb(Base):
     cancellation_policy = Column(String(100), unique=False, nullable=True)
     require_guest_phone_verification = Column(Integer, unique=False, nullable=True)
     require_guest_profile_picture = Column(Integer, unique=False, nullable=True)
-    reviews_per_month_bin = Column(Integer, unique=False, nullable=True)
+    reviews_per_month_bin = Column(String(100), unique=False, nullable=True)
       
     def __repr__(self):
         return '<Airbnb %r>' % self.id

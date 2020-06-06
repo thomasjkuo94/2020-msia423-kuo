@@ -118,7 +118,7 @@ def add_entry():
                 "cancellation_policy": cancellation_policy,
                 "require_guest_phone_verification": require_guest_phone_verification,
                 "require_guest_profile_picture": require_guest_profile_picture,
-                "reviews_per_month_bin": 0
+                "reviews_per_month_bin": "very popular"
             },
             index=np.arange(0,1)
         )
@@ -137,7 +137,7 @@ def add_entry():
 
         entry_prediction = trained_model.predict(df_predict)
 
-        reviews_per_month_bin = int(entry_prediction[0])
+        reviews_per_month_bin = map_bin(int(entry_prediction[0]))
         logger.info("Prediction successful!")
 
         listings1 = Airbnb(years_as_host = years_as_host, host_response_time = host_response_time,
@@ -162,6 +162,17 @@ def add_entry():
         logger.warning("Not able to display listings, error page returned")
         return render_template('error.html')
 
+def map_bin(x):
+    if x == 1:
+        return "very unpopular"
+    elif x == 2:
+        return "unpopular"
+    elif x == 3:
+        return "popular"
+    elif x == 4:
+        return "very popular"
+    else:
+        return "somethings wrong"
 
 if __name__ == '__main__':
     app.run(debug=app.config["DEBUG"], port=app.config["PORT"], host=app.config["HOST"])
