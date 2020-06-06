@@ -14,18 +14,7 @@ logger = logging.getLogger(__file__)
 
 
 if __name__ == '__main__':
-    #configurations
-    feature_output_path = config.FEATURE_OUTPUT_LOCATION
-    imputed_output_path = config.IMPUTED_OUTPUT_LOCATION
-    scores_output_path = config.SCORES_OUTPUT_LOCATION
-    trained_model_output_path = config.SAVED_MODEL_LOCATION
-    encoder_output_path = config.SAVED_ENCODER_LOCATION
-    seed = config.RANDOM_STATE
-    access_key = os.environ.get('AWS_ACCESS_KEY_ID')
-    secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    s3_bucket = config.S3_BUCKET
-    s3_path = config.S3_PATH_LOCATION
-
+    
     parser = argparse.ArgumentParser(description="Train & Predict with the model.")
 
     #Impute Missing Values
@@ -43,13 +32,13 @@ if __name__ == '__main__':
 
     if args.impute:
         try:
-            imputed_df = get_model_data(feature_output_path, seed)
+            imputed_df = get_model_data(config.FEATURE_OUTPUT_LOCATION, config.RANDOM_STATE)
         except Exception:
             logger.error("Something went wrong imputing missing values.")
             raise
         try:
-            imputed_df.to_csv(imputed_output_path, index=False)
-            logger.info("File: {} created -- imputed values successfully generated".format(imputed_output_path))
+            imputed_df.to_csv(config.IMPUTED_OUTPUT_LOCATION, index=False)
+            logger.info("File: {} created -- imputed values successfully generated".format(config.IMPUTED_OUTPUT_LOCATION))
         except Exception:
             logger.error("Failed to create imputed.csv")
             raise
@@ -57,14 +46,14 @@ if __name__ == '__main__':
     if args.tune_and_score:
         #extract best hyperparameters and scores from test set
         try:
-            classifier, cv_auc, cv_acc, test_auc, test_acc = tune_and_score(imputed_output_path, seed, config.TUNING_GRID,
+            classifier, cv_auc, cv_acc, test_auc, test_acc = tune_and_score(config.IMPUTED_OUTPUT_LOCATION, config.RANDOM_STATE, config.TUNING_GRID,
                             config.NUM_ITERS, config.N_JOBS, config.PARAM_SCORING, config.GRID_REFIT, config.TEST_SIZE)
         except Exception:
             logger.error("Something went wrong while tuning and scoring")
             raise
 
         try:
-            with open(scores_output_path, 'w') as f:
+            with open(config.SCORES_OUTPUT_LOCATION, 'w') as f:
                 f.write("Best learning_rate: " + str(classifier.best_params_["learning_rate"]) + '\n')
                 f.write("Best n_estimators: " + str(classifier.best_params_["n_estimators"]) + '\n')
                 f.write("Best max_depth: " + str(classifier.best_params_["max_depth"]) + '\n')
@@ -74,16 +63,16 @@ if __name__ == '__main__':
                 f.write("Test AUC: " + str(test_auc) + "\n")
                 f.write("Test Accuracy: " + str(test_acc) + "\n")
                 f.close()
-            logger.info("File: {} created -- hyperparameters and scoring metrics saved".format(scores_output_path))
+            logger.info("File: {} created -- hyperparameters and scoring metrics saved".format(config.SCORES_OUTPUT_LOCATION))
         except Exception:
             logger.error("Failed to save hyperparameters and scoring metrics")
             raise
 
     if args.full_model:
         try:
-            trained_model = train_model(imputed_output_path, seed, config.BEST_LR, config.BEST_NUM_EST,
-                                config.BEST_MAX_DEPTH, config.BEST_SUBSAMPLE, encoder_output_path)
-            pickle.dump(trained_model, open(trained_model_output_path, "wb"))
+            trained_model = train_model(config.IMPUTED_OUTPUT_LOCATION, config.RANDOM_STATE, config.BEST_LR, config.BEST_NUM_EST,
+                                config.BEST_MAX_DEPTH, config.BEST_SUBSAMPLE, config.SAVED_ENCODER_LOCATION)
+            pickle.dump(trained_model, open(config.SAVED_MODEL_LOCATION, "wb"))
             logger.info("Trained model successfully created")
         except Exception:
             logger.error("Trained model was not fit successfully")
