@@ -7,13 +7,17 @@ import datetime
 from datetime import date, timedelta
 
 pd.options.mode.chained_assignment = None
+logger = logging.getLogger(__name__)
 
 #Function to create response variable
 def create_response_variable(df):
-    """
-    A function to create the response variable, a bin of reviews per month
-    Input: dataframe
-    Output: dataframe with response variable 'reviews_per_month_bin'
+    """A function to create the response variable, a bin of reviews per month
+    
+    Args:
+        df (dataframe object)): dataframe
+
+    Returns:
+        df (dataframe object): dataframe with response variable 'reviews_per_month_bin'
     """
     #drop reviews_per_month that are na
     df = df.dropna(subset=["reviews_per_month"])
@@ -33,39 +37,43 @@ def create_response_variable(df):
 
 #Function create features related to the host
 def create_host_features(df, scrape_date):
+    '''A function to create features related to the airbnb host
+    Args: 
+        
+        scrape_date: date when data was scraped by inside_airbnb hosts
+    Returns: 
+        dataframe with response variables related to the host
     '''
-    A function to create features related to the airbnb host
-    Input: dataframe
-    scrape_date: date when data was scraped by inside_airbnb hosts
-    Output: dataframe with response variables related to the host
-    '''
+    bool_cols = ["host_is_superhost", "host_has_profile_pic", "host_identity_verified"]
+
     #number of years as host
-    df.loc[:,"host_since"] = pd.to_datetime(df["host_since"])
-    df.loc[:,"years_as_host"] = round((scrape_date - df["host_since"]) / np.timedelta64(1,"Y"), 2)
+    try:
+        df = years_since(df, "host_since", scrape_date)
+    except Exception as e:
+        logger.error(e)
     
     #convert host response rate to numeric
-    df.loc[:,"host_response_rate"] = df["host_response_rate"].str[:-1].astype(float) / 100
+    try:
+        df = percent_to_dec(df,"host_response_rate")
+    except Exception as e:
+        logger.error(e)
     
-    #convert host_is_superhost to t = 1, f = 0
-    df.loc[df["host_is_superhost"] == "t","host_is_superhost"] = 1
-    df.loc[df["host_is_superhost"] == "f","host_is_superhost"] = 0
-    
-    #convert host_has_profile_pic to t = 1, f = 0
-    df.loc[df["host_has_profile_pic"] == "t", "host_has_profile_pic"] = 1
-    df.loc[df["host_has_profile_pic"] == "f", "host_has_profile_pic"] = 0
-    
-    #convert host_identity_verified to t = 1, f = 0
-    df.loc[df["host_identity_verified"] == "t", "host_identity_verified"] = 1
-    df.loc[df["host_identity_verified"] == "f", "host_identity_verified"] = 0
+    #convert boolean columns to 1s and 0s
+    for col in bool_cols:
+        try:
+            df = bool_to_int(df, col)
+        except Exception as e:
+            logger.error(e)
     
     return df
 
 #Function to create features related to the property
 def create_property_features(df):
-    '''
-    A function to create features related to the airbnb property listing
-    Input: dataframe
-    Output: dataframe with response variables related to the host
+    '''A function to create features related to the airbnb property listing
+    Args:
+        df (dataframe object)
+    Returns:
+        dataframe with response variables related to the host
     '''
     #categorize property types
     ppty_categories = {"Apartment","House","Condominium","Guest suite","Boutique hotel","Serviced apartment",
@@ -105,15 +113,25 @@ def create_property_features(df):
     df.loc[df["extra_people"] > 0, "extra_people_cat"] = 1
     
     #count the number of amenities, instead of having as text
-    df.loc[:,"amenities_count"] = df["amenities"].str[1:-1].str.split(",").str.len()
+    try:
+        df = extract_str_count(df, "amenities")
+    except Exception as e:
+        logger.error(e)
     
     return df
 
 def create_booking_features(df):
-    ''' A function to create features related to booking
-    Input: dataframe
-    Output: dataframe with response variables related to the booking properties
-    '''
+    """A function to create features related to booking
+    
+    Args:
+        df (dataframe object)): dataframe
+
+    Returns:
+        df (dataframe object): dataframe with response variables related to the booking properties
+    """
+
+    bool_cols = ["instant_bookable","require_guest_phone_verification","require_guest_profile_picture"]
+
     #create bins for minimum nights
     df.loc[:,"minimum_nights_cat"] = df["minimum_nights"]
     df.loc[df["minimum_nights"] <= 7, "minimum_nights_cat"] = 1 #if a week or less, group 1
@@ -127,28 +145,25 @@ def create_booking_features(df):
     df.loc[(df["maximum_nights"] > 30) & (df["maximum_nights"] <= 365), "maximum_nights_cat"] = 2 #btw. month & year
     df.loc[df["maximum_nights"] > 365, "maximum_nights_cat"] = 3
     
-    #change instant_bookable to binary variable, if t=1, f=0
-    df.loc[df["instant_bookable"] == "t","instant_bookable"] = 1
-    df.loc[df["instant_bookable"] == "f", "instant_bookable"] = 0
-    
     #combine super_strict_30, 60, and strict cancellation policies
     df.loc[(df["cancellation_policy"] == "super_strict_30") |
           (df["cancellation_policy"] == "super_strict_60"), "cancellation_policy"] = "strict"
     
-    #change require_guest_phone_verification to t=1, f=0
-    df.loc[df["require_guest_phone_verification"] == "t", "require_guest_phone_verification"] = 1
-    df.loc[df["require_guest_phone_verification"] == "f", "require_guest_phone_verification"] = 0
-    
-    #change require_guest_profile_picture to t=1, f=0
-    df.loc[df["require_guest_profile_picture"] == "t", "require_guest_profile_picture"] = 1
-    df.loc[df["require_guest_profile_picture"] == "f", "require_guest_profile_picture"] = 0
+    #convert boolean columns to 1s and 0s
+    for col in bool_cols:
+        try:
+            df = bool_to_int(df, col)
+        except Exception as e:
+            logger.error(e)
     
     return df
 
 def clean_data_types(df):
     """Clean up datatypes of final dataset
-    input: dataframe
-    output: final dataframe with clean types
+    Args:
+        df (dataframe object)): dataframe
+    Returns: 
+        df (dataframe object): final dataframe with clean types
     """
     df["host_is_superhost"] = df["host_is_superhost"].astype(int)
     df["host_has_profile_pic"] = df["host_has_profile_pic"].astype(int)
@@ -164,6 +179,65 @@ def clean_data_types(df):
     df["cancellation_policy"] = df["cancellation_policy"].astype(str)
     df["require_guest_phone_verification"] = df["require_guest_phone_verification"].astype(int)
     df["require_guest_profile_picture"] = df["require_guest_profile_picture"].astype(int)
+    
+    return df
+
+def bool_to_int(df, col_name):
+    """A function to turn ts and fs into 1s and 0s
+    
+    Args:
+        df (dataframe object)): dataframe to be cleaned
+        col_name (string): column name of column to be cleaned
+
+    Returns:
+        df (dataframe object): dataframe with modified features
+    """
+    df.loc[df[col_name] == "t",col_name] = 1
+    df.loc[df[col_name] == "f",col_name] = 0
+    
+    return df
+
+def percent_to_dec(df, col_name):
+    """A function to turn a percentage string into a float decimal
+    
+    Args:
+        df (dataframe object)): dataframe to be cleaned
+        col_name (string): column name of column to be cleaned
+
+    Returns:
+        df (dataframe object): dataframe with modified features
+    """
+    df.loc[:,col_name] = df[col_name].str[:-1].astype(float) / 100
+    
+    return df
+
+def years_since(df, col_name, scrape_date):
+    """A function to calculate difference between two dates in years
+    
+    Args:
+        df (dataframe object)): dataframe to be cleaned
+        col_name (string): column name of column to be cleaned
+        scrape_date (date_time): date when the data was scraped
+
+    Returns:
+        df (dataframe object): dataframe with new feature "years_as_host"
+    """
+    df.loc[:,col_name] = pd.to_datetime(df[col_name])
+    df.loc[:,"years_as_host"] = round((scrape_date - df[col_name]) / np.timedelta64(1,"Y"), 2)
+    
+    return df
+
+def extract_str_count(df, col_name):
+    """A function to the number of comma-delimited strings from a string of {str,str,str} format
+    
+    Args:
+        df (dataframe object)): dataframe to be cleaned
+        col_name (string): column name of column to be cleaned
+
+    Returns:
+        df (dataframe object): dataframe with new feature amenities_count
+    """
+    df.loc[:,"amenities_count"] = df[col_name].str[1:-1].str.split(",").str.len()
     
     return df
 

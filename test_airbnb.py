@@ -1,189 +1,98 @@
 import numpy as np
 import pandas as pd
 import pytest
-from src.generate_features import generate_features as gf
-from src.generate_features import visible_range as vr
-from src.generate_features import visible_norm_range as v_norm
-from src.generate_features import log_entropy as log_e
-from src.generate_features import entropy_x_contrast as e_x_c
-from src.generate_features import ir_range as irr
-from src.generate_features import ir_norm_range as ir_norm
+import datetime
+from datetime import date, timedelta
 
-def test_visible_range_function_happy():
-    column_names = ['visible_mean','visible_max','visible_min','visible_mean_distribution',
-      'visible_contrast','visible_entropy','visible_second_angular_momentum','IR_mean',
-      'IR_max','IR_min','class']
-    feature_columns = ['visible_range','visible_norm_range','log_entropy','entropy_x_contrast',
-    'IR_range','IR_norm_range']
+from src.clean import clean_zips
+from src.create_features import create_response_variable
+from src.create_features import bool_to_int
+from src.create_features import percent_to_dec
+from src.create_features import years_since
+from src.create_features import extract_str_count
 
-    input_df = pd.DataFrame([[3,400,100,5,5,10,3.5,2,50,40,1],
-                        [2,200,100,11,3,20,4.7,4,300,100,1]], columns=column_names)
 
-    df_test = vr(input_df)
+def test_clean_zips_happy():
+    column_names = ['zipcode']
+    zips = ["91889"]
 
-    true_df = pd.DataFrame([[300],[100]],columns=["visible_range"])
+    input_df = pd.DataFrame([["CA 91889"],
+                        ["91888"]], columns=column_names)
 
-    assert df_test['visible_range'].equals(true_df["visible_range"])
+    df_test = clean_zips(input_df,zips)
 
-def test_visible_range_sad():
-    column_names = ['visible_mean','visible_max','visible_min','visible_mean_distribution',
-      'visible_contrast','visible_entropy','visible_second_angular_momentum','IR_mean',
-      'IR_max','IR_min','class']
-    feature_columns = ['visible_range','visible_norm_range','log_entropy','entropy_x_contrast',
-    'IR_range','IR_norm_range']
+    true_df = pd.DataFrame([["91889"],[np.nan]],columns=column_names)
 
-    input_df = pd.DataFrame([[3,"400",100,5,5,10,3.5,2,50,40,1],
-                        [2,"200",100,11,3,20,4.7,4,300,100,1]], columns=column_names)
-    df_test = gf(input_df,column_names,feature_columns)
+    assert df_test["zipcode"].equals(true_df["zipcode"])
 
-    assert "visible_range" not in df_test.columns
+def test_clean_zips_sad():
+    column_names = ['zipcode']
+    zips = ["91889"]
 
-def test_visible_norm_range_function_happy():
-    column_names = ['visible_mean','visible_max','visible_min','visible_mean_distribution',
-      'visible_contrast','visible_entropy','visible_second_angular_momentum','IR_mean',
-      'IR_max','IR_min','class']
-    feature_columns = ['visible_range','visible_norm_range','log_entropy','entropy_x_contrast',
-    'IR_range','IR_norm_range']
+    input_df = pd.DataFrame([["CAC 91889"],
+                        ["91888"]], columns=column_names)
 
-    input_df = pd.DataFrame([[3,400,100,5,5,10,3.5,2,50,40,1],
-                        [2,200,100,11,3,20,4.7,4,300,100,1]], columns=column_names)
+    df_test = clean_zips(input_df,zips)
 
-    df_test = v_norm(input_df)
+    true_df = pd.DataFrame([["91889"],[np.nan]],columns=column_names)
 
-    true_df = pd.DataFrame([[100.0],[50.0]],columns=["visible_norm_range"])
+    assert ~(df_test["zipcode"].equals(true_df["zipcode"]))
 
-    assert df_test['visible_norm_range'].equals(true_df["visible_norm_range"])
+def test_create_response_happy():
+    column_names = ['reviews_per_month']
 
-def test_visible_norm_range_sad():
-    column_names = ['visible_mean','visible_max','visible_min','visible_mean_distribution',
-      'visible_contrast','visible_entropy','visible_second_angular_momentum','IR_mean',
-      'IR_max','IR_min','class']
-    feature_columns = ['visible_range','visible_norm_range','log_entropy','entropy_x_contrast',
-    'IR_range','IR_norm_range']
+    input_df = pd.DataFrame([[1.7],
+                        [0.3]], columns=column_names)
 
-    input_df = pd.DataFrame([["0",400,100,5,5,10,3.5,2,50,40,1],
-                        ["0",200,100,11,3,20,4.7,4,300,100,1]], columns=column_names)
+    df_test = create_response_variable(input_df)
 
-    df_test = gf(input_df,column_names,feature_columns)
+    true_df = pd.DataFrame([[3],[1]],columns=["reviews_per_month_bin"])
 
-    assert "visible_norm_range" not in df_test.columns
+    assert df_test["reviews_per_month_bin"].equals(true_df["reviews_per_month_bin"])
 
-def test_log_entropy_function_happy():
-    column_names = ['visible_mean','visible_max','visible_min','visible_mean_distribution',
-      'visible_contrast','visible_entropy','visible_second_angular_momentum','IR_mean',
-      'IR_max','IR_min','class']
-    feature_columns = ['visible_range','visible_norm_range','log_entropy','entropy_x_contrast',
-    'IR_range','IR_norm_range']
+def test_bool_to_int_happy():
+    column_names = ['truefalse']
 
-    input_df = pd.DataFrame([[3,400,100,5,5,10,3.5,2,50,40,1],
-                        [2,200,100,11,3,20,4.7,4,300,100,1]], columns=column_names)
+    input_df = pd.DataFrame([["t"]], columns=column_names)
 
-    df_test = log_e(input_df)
+    df_test = bool_to_int(input_df,"truefalse")
 
-    true_df = pd.DataFrame([[np.log(10)],[np.log(20)]],columns=["log_entropy"])
+    true_df = pd.DataFrame([[1]],columns=column_names)
 
-    assert df_test['log_entropy'].equals(true_df["log_entropy"])
+    assert df_test["truefalse"][0] == (true_df["truefalse"][0])
 
-def test_log_entropy_sad():
-    column_names = ['visible_mean','visible_max','visible_min','visible_mean_distribution',
-      'visible_contrast','visible_entropy','visible_second_angular_momentum','IR_mean',
-      'IR_max','IR_min','class']
-    feature_columns = ['visible_range','visible_norm_range','log_entropy','entropy_x_contrast',
-    'IR_range','IR_norm_range']
+def test_percent_to_dec_happy():
+    column_names = ['percdec']
 
-    input_df = pd.DataFrame([[3,400,100,5,5,"-2",3.5,2,50,40,1],
-                        [2,200,100,11,3,"-5",4.7,4,300,100,1]], columns=column_names)
+    input_df = pd.DataFrame([["85%"],
+                              ["100%"]], columns=column_names)
 
-    df_test = gf(input_df,column_names,feature_columns)
+    df_test = percent_to_dec(input_df,"percdec")
 
-    assert "log_entropy" not in df_test.columns
+    true_df = pd.DataFrame([[0.85],
+                            [1.00]],columns=column_names)
 
-def test_entropy_x_contrast_happy():
-    column_names = ['visible_mean','visible_max','visible_min','visible_mean_distribution',
-      'visible_contrast','visible_entropy','visible_second_angular_momentum','IR_mean',
-      'IR_max','IR_min','class']
-    feature_columns = ['visible_range','visible_norm_range','log_entropy','entropy_x_contrast',
-    'IR_range','IR_norm_range']
+    assert df_test["percdec"].equals(true_df["percdec"])
 
-    input_df = pd.DataFrame([[3,400,100,5,5,10,3.5,2,50,40,1],
-                        [2,200,100,11,3,20,4.7,4,300,100,1]], columns=column_names)
+def test_years_since_happy():
+    column_names = ['years_since']
+    scrape = datetime.datetime(2020, 1, 4)
 
-    df_test = e_x_c(input_df)
+    input_df = pd.DataFrame([["7/31/2008"]], columns=column_names)
 
-    true_df = pd.DataFrame([[5*10],[3*20]],columns=["entropy_x_contrast"])
+    df_test = years_since(input_df,"years_since",scrape)
 
-    assert df_test['entropy_x_contrast'].equals(true_df["entropy_x_contrast"])
+    true_df = pd.DataFrame([[11.43]],columns=["years_as_host"])
 
-def test_entropy_x_contrast_sad():
-    column_names = ['visible_mean','visible_max','visible_min','visible_mean_distribution',
-      'visible_contrast','visible_entropy','visible_second_angular_momentum','IR_mean',
-      'IR_max','IR_min','class']
-    feature_columns = ['visible_range','visible_norm_range','log_entropy','entropy_x_contrast',
-    'IR_range','IR_norm_range']
+    assert df_test["years_as_host"].equals(true_df["years_as_host"])
 
-    input_df = pd.DataFrame([[3,400,100,5,5,None,3.5,2,50,40,1],
-                        [2,200,100,11,3,None,4.7,4,300,100,1]], columns=column_names)
+def test_extract_str_count_happy():
+    column_names = ['amenities_list']
 
-    df_test = gf(input_df,column_names,feature_columns)
+    input_df = pd.DataFrame([["{a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z}"]], columns=column_names)
 
-    assert "entropy_x_contrast" not in df_test.columns
+    df_test = extract_str_count(input_df,"amenities_list")
 
-def test_IR_range_happy():
-    column_names = ['visible_mean','visible_max','visible_min','visible_mean_distribution',
-      'visible_contrast','visible_entropy','visible_second_angular_momentum','IR_mean',
-      'IR_max','IR_min','class']
-    feature_columns = ['visible_range','visible_norm_range','log_entropy','entropy_x_contrast',
-    'IR_range','IR_norm_range']
+    true_df = pd.DataFrame([[26]],columns=["amenities_count"])
 
-    input_df = pd.DataFrame([[3,400,100,5,5,10,3.5,2,50,40,1],
-                        [2,200,100,11,3,20,4.7,4,300,100,1]], columns=column_names)
-
-    df_test = irr(input_df)
-
-    true_df = pd.DataFrame([[10],[200]],columns=["IR_range"])
-
-    assert df_test['IR_range'].equals(true_df["IR_range"])
-
-def test_IR_range_sad():
-    column_names = ['visible_mean','visible_max','visible_min','visible_mean_distribution',
-      'visible_contrast','visible_entropy','visible_second_angular_momentum','IR_mean',
-      'IR_max','IR_min','class']
-    feature_columns = ['visible_range','visible_norm_range','log_entropy','entropy_x_contrast',
-    'IR_range','IR_norm_range']
-
-    input_df = pd.DataFrame([[3,400,100,5,5,10,3.5,2,"50",40,1],
-                        [2,200,100,11,3,20,4.7,4,"300",100,1]], columns=column_names)
-
-    df_test = gf(input_df,column_names,feature_columns)
-
-    assert "IR_range" not in df_test.columns
-
-def test_IR_norm_range_happy():
-    column_names = ['visible_mean','visible_max','visible_min','visible_mean_distribution',
-      'visible_contrast','visible_entropy','visible_second_angular_momentum','IR_mean',
-      'IR_max','IR_min','class']
-    feature_columns = ['visible_range','visible_norm_range','log_entropy','entropy_x_contrast',
-    'IR_range','IR_norm_range']
-
-    input_df = pd.DataFrame([[3,400,100,5,5,10,3.5,2,50,40,1],
-                        [2,200,100,11,3,20,4.7,4,300,100,1]], columns=column_names)
-
-    df_test = ir_norm(input_df)
-
-    true_df = pd.DataFrame([[5.0],[50.0]],columns=["IR_norm_range"])
-
-    assert df_test['IR_norm_range'].equals(true_df["IR_norm_range"])
-
-def test_IR_norm_range_sad():
-    column_names = ['visible_mean','visible_max','visible_min','visible_mean_distribution',
-      'visible_contrast','visible_entropy','visible_second_angular_momentum','IR_mean',
-      'IR_max','IR_min','class']
-    feature_columns = ['visible_range','visible_norm_range','log_entropy','entropy_x_contrast',
-    'IR_range','IR_norm_range']
-
-    input_df = pd.DataFrame([[3,400,100,5,5,10,3.5,"2",50,40,1],
-                        [2,200,100,11,3,20,4.7,"4",300,100,1]], columns=column_names)
-
-    df_test = gf(input_df,column_names,feature_columns)
-
-    assert "IR_norm_range" not in df_test.columns
+    assert df_test["amenities_count"].equals(true_df["amenities_count"])

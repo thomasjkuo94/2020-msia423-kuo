@@ -13,4 +13,4 @@ COPY . /app
 
 RUN chmod +x app/boot.sh
 
-ENTRYPOINT ["./app/boot_train.sh"]
+ENTRYPOINT ["sh"]

@@ -4,6 +4,8 @@ import logging
 import numpy as np
 import pandas as pd
 
+logger = logging.getLogger(__name__)
+
 def clean_data(raw_input_path, listing_types, dropped_cols, zipcodes):
     '''Clean raw data and return a dataframe of cleaned data
     
@@ -18,6 +20,9 @@ def clean_data(raw_input_path, listing_types, dropped_cols, zipcodes):
     '''
 
     df = pd.read_csv(raw_input_path, dtype=listing_types)
+
+    price_columns = ["price","weekly_price","monthly_price","security_deposit",
+                    "cleaning_fee","extra_people"]
     
     #drop unused columns
     df = df.drop(columns=dropped_cols, axis=1)
@@ -30,29 +35,49 @@ def clean_data(raw_input_path, listing_types, dropped_cols, zipcodes):
                     how="all")
     
     #extract zipcode and set invalid zipcodes as NaN
-    df.zipcode = df.zipcode.str.replace("CA ","")
-    df.zipcode = df.zipcode.replace("CA", np.nan)
-    df.loc[~df.zipcode.isin(zipcodes), "zipcode"] = np.nan
-    
-    #change price to a float
-    df.price = df.price.str.replace(",","").str[1:].astype(float)
-    
-    #change weekly_price to a float
-    df.weekly_price = df.weekly_price.str.replace(",","").str[1:].astype(float)
-    
-    #change monthly_price to a float
-    df.monthly_price = df.monthly_price.str.replace(",","").str[1:].astype(float)
-    
-    #change security_deposit to a float
-    df.security_deposit = df.security_deposit.str.replace(",","").str[1:].astype(float)
-    
-    #change cleaning_fee to a float
-    df.cleaning_fee = df.cleaning_fee.str.replace(",","").str[1:].astype(float)
-    
-    #change extra_people to a float
-    df.extra_people = df.extra_people.str.replace(",","").str[1:].astype(float)
+    try:
+        df = clean_zips(df, zipcodes)
+    except Exception as e:
+        logger.error(e)
+
+    #clean columns related to pricing metrics
+    for col in price_columns:
+        try:
+            df = clean_pricing(df, col)
+        except Exception as e:
+            logger.error(e)
 
     #drop reviews_per_month that are na
     df = df.dropna(subset=["reviews_per_month"])
     
+    return df
+
+def clean_zips(df, zipcodes):
+    '''Clean zipcodes in rawdata
+    
+    Args:
+        df (dataframe object)): dataframe to be cleaned
+        zipcodes (dict): a list of valid San Francisco zipcodes
+
+    Returns:
+        df (dataframe object): cleaned dataframe
+    '''
+    df.zipcode = df.zipcode.str.replace("CA ","")
+    df.zipcode = df.zipcode.replace("CA", np.nan)
+    df.loc[~df.zipcode.isin(zipcodes), "zipcode"] = np.nan
+
+    return df
+
+def clean_pricing(df,col_name):
+    '''Clean pricing variables in rawdata by removing $ and commas
+    
+    Args:
+        df (dataframe object)): dataframe to be cleaned
+        col_name (string): column name of column to be cleaned
+
+    Returns:
+        df (dataframe object): cleaned dataframe
+    '''
+    df[col_name] = df[col_name].str.replace(",","").str[1:].astype(float)
+
     return df
