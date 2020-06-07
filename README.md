@@ -56,8 +56,8 @@ Initiative 3: Create App Frontend
   * [3. Push data to S3](#3-push-data-to-s3)
   * [4. Model pipeline](#4-model-pipeline)
   * [5. Running test scripts](#5-running-test-scripts)
-  * [6. Running web app](#5-running-web-app)
-  * [7. Running MySql](#5-running-mysql)
+  * [6. Running web app](#6-running-web-app)
+  * [7. Running MySql](#7-running-mysql)
   
 <!-- tocstop -->
 
@@ -68,20 +68,26 @@ Initiative 3: Create App Frontend
 ├── app
 │   ├── static/                       <- CSS, JS files that remain static
 │   ├── templates/                    <- HTML (or other code) that is templated and changes based on a set of inputs
-│   ├── Dockerfile                    <- Dockerfile for building image to run app  
+│   ├── Dockerfile                    <- Dockerfile for building image to run model training pipeline + testing
+│   ├── Dockerfile_app                <- Dockerfile for building image to run app
+│   ├── boot.sh                       <- bash script used by Dockerfile_app to execute flaskapp
+│   ├── boot_test.sh                  <- bash script used Dockerfile to execute pytest
+│   ├── boot_train.sh                 <- bash script used Dockerfile to execute model training pipeline
 │
 ├── config                            <- Directory for configuration files 
 │   ├── local/                        <- Directory for keeping environment variables and other local configurations that *do not sync** to Github 
 │   ├── logging/                      <- Configuration of python loggers
 │    ├── flaskconfig.py                <- Configurations for Flask API
 │    ├── config.py                    <- Configurations for local data storage & S3 bucket location
-│    ├── CHANGEME.env                 <- Rename "config.env"; Please enter S3 Access Keys & RDS Host,Port,User,Password,DB
+│    ├── CHANGEME.env                 <- Rename "config.env" if desired; Please enter S3 Access Keys & RDS Host,Port,User,Password,DB
 │
 ├── data                              <- Folder that contains data used or generated. Only the external/ and sample/ subdirectories are tracked by git. 
 │   ├── external/                     <- External data sources, usually reference data,  will be synced with git
 │   ├── sample/                       <- Sample data used for code development and testing, will be synced with git
 │
 ├── deliverables/                     <- Any white papers, presentations, final work products that are presented or delivered to a stakeholder 
+│   ├── mybnb.pdf                     <- final presentation slides in pdf format
+
 │
 ├── docs/                             <- Sphinx documentation based on Python docstrings. Optional for this project. 
 │
@@ -99,13 +105,19 @@ Initiative 3: Create App Frontend
 │
 ├── src/                              <- Source data for the project
 │   ├── ingestion.py                  <- Python Module imported by run_s3.py to help with ingestion
-│   ├── helpers.py                    <- Python Module imported by run_database.py to help with db creation
+│   ├── downloads3.py                 <- Python Module imported by run_cleanandfeat.py to download raw data from S3
+│   ├── clean.py                      <- Python Module imported by run_cleanandfeat.py to clean raw data
+│   ├── create_features.py            <- Python Module imported by run_cleanandfeat.py to create features
+│   ├── train.py                      <- Python Module imported by run_model.py to impute, tune hyperparameters, save TMOs
 │
 ├── test/                             <- Files necessary for running model tests (see documentation below) 
 │
 ├── app.py                            <- Flask wrapper for running the model 
 ├── run_s3.py                         <- Simplifies the execution of ingesting data & pushing to S3 
 ├── run_database.py                   <- Simplifies the execution of creating db locally or in rds
+├── run_cleanandfeat.py               <- Simplifies the execution of downloading, cleaning, and creating features
+├── run_model.py                      <- Simplifies the execution of imputing, hyperparameter turning, and model training
+├── test_airbnb.py                    <- Simplifies the execution of testing
 ├── requirements.txt                  <- Python package dependencies 
 ```
 ## Running the app in Docker 
@@ -127,7 +139,8 @@ vi config/CHANGEME.env
 
 Fill in for S3 bucket:
 * AWS_ACCESS_KEY_ID
-* AWS_SECRET_ACCESS_KEY. 
+* AWS_SECRET_ACCESS_KEY 
+
 Fill in for AWS RDS instance:
 * MYSQL_HOST
 * MYSQL_PORT
@@ -175,6 +188,7 @@ run_cleanandfeat.py has the following arguments:
 * `--download` or `-d`, which downloads from the S3 bucket into local
 * `--clean` or `-c`, which cleans the downloaded data
 * `--featurize` or `-f`, which creates features from cleaned data
+
 run_model.py has the following arguments:
 * `--impute` or `-i`, which imputes missing values from the cleaned & featurized data
 * `--tune_and_score` or `-ts`, which tunes the hyperparameters and outputs cross-validation & test AUC & Accuracy
@@ -204,7 +218,7 @@ docker run airbnb app/boot_test.sh
 
 This assumes you have already built the docker image `airbnb_webapp` as described in step 2. The webbapp uses the `app/boot.sh` to execute the `run_database.py` and `app.py`, both located in the root directory.\
 run_database.py has the following arguments:
-* `--truncate` or `-t`, which deletes existing observations from the local sqlite database or AWS RDS.
+* `--truncate` or `-t`, which deletes existing observations from the local sqlite database or AWS RDS.\
 app.py has no arguments, and executes the flaskapp.
 
 There are two ways to execute the web app:
