@@ -48,7 +48,10 @@ def get_model_data(features_path, seed):
     inv_host_resp_map = dict([[v,k] for k,v in host_resp_map.items()])
 
     #impute df to copy values over to original df
-    imputed_df = impute_missing(df, seed, host_resp_map)
+    try:
+        imputed_df = impute_missing(df, seed, host_resp_map)
+    except Exception as e:
+        logger.error(e)
 
     df = df[[c for c in df if c not in ["reviews_per_month_bin"]] 
            + ["reviews_per_month_bin"]]

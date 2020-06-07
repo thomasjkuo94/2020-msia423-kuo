@@ -20,18 +20,25 @@ def create_response_variable(df):
         df (dataframe object): dataframe with response variable 'reviews_per_month_bin'
     """
     #drop reviews_per_month that are na
-    df = df.dropna(subset=["reviews_per_month"])
+    try:
+        df = df.dropna(subset=["reviews_per_month"])
+        logger.info("Null response variables dropped")
+    except Exception as e:
+        logger.error(e)
 
-    #bin 0
-    df.loc[:,"reviews_per_month_bin"] = 0
-    #bin 1
-    df.loc[(df.reviews_per_month > 0) & (df.reviews_per_month <= 0.35), "reviews_per_month_bin"] = 1
-    #bin 2
-    df.loc[(df.reviews_per_month > 0.35) & (df.reviews_per_month <= 1.1), "reviews_per_month_bin"] = 2
-    #bin 3
-    df.loc[(df.reviews_per_month > 1.1) & (df.reviews_per_month <= 2.9), "reviews_per_month_bin"] = 3
-    #bin 4
-    df.loc[(df.reviews_per_month > 2.9), "reviews_per_month_bin"] = 4
+    try:
+        #bin 0
+        df.loc[:,"reviews_per_month_bin"] = 0
+        #bin 1
+        df.loc[(df.reviews_per_month > 0) & (df.reviews_per_month <= 0.35), "reviews_per_month_bin"] = 1
+        #bin 2
+        df.loc[(df.reviews_per_month > 0.35) & (df.reviews_per_month <= 1.1), "reviews_per_month_bin"] = 2
+        #bin 3
+        df.loc[(df.reviews_per_month > 1.1) & (df.reviews_per_month <= 2.9), "reviews_per_month_bin"] = 3
+        #bin 4
+        df.loc[(df.reviews_per_month > 2.9), "reviews_per_month_bin"] = 4
+    except Exception as e:
+        logger.error(e)
     
     return df
 
@@ -76,41 +83,62 @@ def create_property_features(df):
         dataframe with response variables related to the host
     '''
     #categorize property types
-    ppty_categories = {"Apartment","House","Condominium","Guest suite","Boutique hotel","Serviced apartment",
-                      "Hotel","Townhouse"}
-    df.loc[:,"property_type_cat"] = df["property_type"]
-    df.loc[~df["property_type"].isin(ppty_categories),"property_type_cat"] = "Other"
+    try:
+        ppty_categories = {"Apartment","House","Condominium","Guest suite","Boutique hotel","Serviced apartment",
+                          "Hotel","Townhouse"}
+        df.loc[:,"property_type_cat"] = df["property_type"]
+        df.loc[~df["property_type"].isin(ppty_categories),"property_type_cat"] = "Other"
+    except Exception as e:
+        logger.error(e)
     
     #create bins for accomodates column
-    df.loc[:,"accommodates_cat"] = df["accommodates"]
-    df.loc[df["accommodates"] <= 2, "accommodates_cat"] = 1
-    df.loc[(df["accommodates"] > 2) & (df["accommodates"] <= 4), "accommodates_cat"] = 2
-    df.loc[(df["accommodates"] > 4) & (df["accommodates"] <= 6), "accommodates_cat"] = 3
-    df.loc[(df["accommodates"] > 6), "accommodates_cat"] = 4
+    try:
+        df.loc[:,"accommodates_cat"] = df["accommodates"]
+        df.loc[df["accommodates"] <= 2, "accommodates_cat"] = 1
+        df.loc[(df["accommodates"] > 2) & (df["accommodates"] <= 4), "accommodates_cat"] = 2
+        df.loc[(df["accommodates"] > 4) & (df["accommodates"] <= 6), "accommodates_cat"] = 3
+        df.loc[(df["accommodates"] > 6), "accommodates_cat"] = 4
+    except Exception as e:
+        logger.error(e)
     
     #create bins for the # of bathrooms
-    df.loc[:,"bathrooms_cat"] = df["bathrooms"]
-    df.loc[(df["bathrooms"] < 2) | (df["bathrooms"].isna()), "bathrooms_cat"] = 1 #if less than 2 or isna
-    df.loc[(df["bathrooms"] >= 2) & (df["bathrooms"] < 3), "bathrooms_cat"] = 2
-    df.loc[df["bathrooms"] >= 3, "bathrooms_cat"] = 3
+    try:
+        df.loc[:,"bathrooms_cat"] = df["bathrooms"]
+        df.loc[(df["bathrooms"] < 2) | (df["bathrooms"].isna()), "bathrooms_cat"] = 1 #if less than 2 or isna
+        df.loc[(df["bathrooms"] >= 2) & (df["bathrooms"] < 3), "bathrooms_cat"] = 2
+        df.loc[df["bathrooms"] >= 3, "bathrooms_cat"] = 3
+    except Exception as e:
+        logger.error(e)
     
     #create bins for # of bedrooms
-    df.loc[:,"bedrooms_cat"] = df["bedrooms"]
-    df.loc[df["bedrooms"].isna(),"bedrooms_cat"] = np.minimum(df["beds"],3) #impute bedrooms based on # of beds
-    df.loc[df["bedrooms"] >= 3, "bedrooms_cat"] = 3
+    try:
+        df.loc[:,"bedrooms_cat"] = df["bedrooms"]
+        df.loc[df["bedrooms"].isna(),"bedrooms_cat"] = np.minimum(df["beds"],3) #impute bedrooms based on # of beds
+        df.loc[df["bedrooms"] >= 3, "bedrooms_cat"] = 3
+    except Exception as e:
+        logger.error(e)
     
     #create bins for # of beds--the number of beds is at a minimum, the number of bedrooms
-    df.loc[:,"beds_cat"] = df["beds"]
-    df.loc[(df["beds"].isna()) | (df["beds"] == 0), "beds_cat"] = np.maximum(df["bedrooms"], 1)
-    df.loc[df["beds"] >= 5, "beds_cat"] = 5
+    try:
+        df.loc[:,"beds_cat"] = df["beds"]
+        df.loc[(df["beds"].isna()) | (df["beds"] == 0), "beds_cat"] = np.maximum(df["bedrooms"], 1)
+        df.loc[df["beds"] >= 5, "beds_cat"] = 5
+    except Exception as e:
+        logger.error(e)
     
     #create bins for guests included, those >3 are lumped together
-    df.loc[:,"guests_included_cat"] = df["guests_included"]
-    df.loc[df["guests_included"] >= 3, "guests_included_cat"] = 3
+    try:
+        df.loc[:,"guests_included_cat"] = df["guests_included"]
+        df.loc[df["guests_included"] >= 3, "guests_included_cat"] = 3
+    except Exception as e:
+        logger.error(e)
     
     #turn extra_people into a binary variable. If price >0, then 1
-    df.loc[:,"extra_people_cat"] = df["extra_people"]
-    df.loc[df["extra_people"] > 0, "extra_people_cat"] = 1
+    try:
+        df.loc[:,"extra_people_cat"] = df["extra_people"]
+        df.loc[df["extra_people"] > 0, "extra_people_cat"] = 1
+    except Exception as e:
+        logger.error(e)
     
     #count the number of amenities, instead of having as text
     try:
@@ -133,21 +161,30 @@ def create_booking_features(df):
     bool_cols = ["instant_bookable","require_guest_phone_verification","require_guest_profile_picture"]
 
     #create bins for minimum nights
-    df.loc[:,"minimum_nights_cat"] = df["minimum_nights"]
-    df.loc[df["minimum_nights"] <= 7, "minimum_nights_cat"] = 1 #if a week or less, group 1
-    df.loc[(df["minimum_nights"] > 7) & (df["minimum_nights"] <= 30), "minimum_nights_cat"] = 2 #if btw. week & month
-    df.loc[df["minimum_nights"] > 30, "minimum_nights_cat"] = 3 #greater than a month, 3
+    try:
+        df.loc[:,"minimum_nights_cat"] = df["minimum_nights"]
+        df.loc[df["minimum_nights"] <= 7, "minimum_nights_cat"] = 1 #if a week or less, group 1
+        df.loc[(df["minimum_nights"] > 7) & (df["minimum_nights"] <= 30), "minimum_nights_cat"] = 2 #if btw. week & month
+        df.loc[df["minimum_nights"] > 30, "minimum_nights_cat"] = 3 #greater than a month, 
+    except Exception as e:
+        logger.error(e)
     
     #create bins for maximum nights
-    df["maximum_nights"] = df["maximum_nights"].astype(int)
-    df.loc[:,"maximum_nights_cat"] = df["maximum_nights"]
-    df.loc[df["maximum_nights"] <= 30, "maximum_nights_cat"] = 1 #if max is a month or less
-    df.loc[(df["maximum_nights"] > 30) & (df["maximum_nights"] <= 365), "maximum_nights_cat"] = 2 #btw. month & year
-    df.loc[df["maximum_nights"] > 365, "maximum_nights_cat"] = 3
+    try:
+        df["maximum_nights"] = df["maximum_nights"].astype(int)
+        df.loc[:,"maximum_nights_cat"] = df["maximum_nights"]
+        df.loc[df["maximum_nights"] <= 30, "maximum_nights_cat"] = 1 #if max is a month or less
+        df.loc[(df["maximum_nights"] > 30) & (df["maximum_nights"] <= 365), "maximum_nights_cat"] = 2 #btw. month & year
+        df.loc[df["maximum_nights"] > 365, "maximum_nights_cat"] = 3
+    except Exception as e:
+        logger.error(e)
     
     #combine super_strict_30, 60, and strict cancellation policies
-    df.loc[(df["cancellation_policy"] == "super_strict_30") |
-          (df["cancellation_policy"] == "super_strict_60"), "cancellation_policy"] = "strict"
+    try:
+        df.loc[(df["cancellation_policy"] == "super_strict_30") |
+              (df["cancellation_policy"] == "super_strict_60"), "cancellation_policy"] = "strict"
+    except Exception as e:
+        logger.error(e)
     
     #convert boolean columns to 1s and 0s
     for col in bool_cols:

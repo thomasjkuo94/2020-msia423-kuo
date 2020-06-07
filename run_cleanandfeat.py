@@ -9,6 +9,7 @@ from src.create_features import create_features
 
 # set up logging config
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+logging.config.fileConfig(logging_config, disable_existing_loggers=False)
 logger = logging.getLogger(__file__)
 
 
