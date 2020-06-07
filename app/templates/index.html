@@ -3,41 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <link href="static/basic.css" rel="stylesheet">
+    <style>
+    body {
+      background-color: lightblue;
+      background: url(https://cdn.dribbble.com/users/266612/screenshots/2023171/sf-skyline-dribbble2.png);
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    h1 {
+      color: blue;
+      text-align: center;
+    }
+
+    p {
+      font-family: Arial;
+      font-size: 20px;
+    }
+    .sub-entry {
+    width: 30%;
+    float: left;
+    font-family: Helvetica, Arial;
+    margin-left: 40px;
+    }
+
+    a { 
+      color: inherit;
+      text-decoration: none;
+      background: -webkit-linear-gradient(45deg, Fuchsia, Orange, Gold, LightGreen, MediumSeaGreen, LightSkyBlue, MediumOrchid, MediumPurple);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    } 
+
+    .rainbow-text {
+      background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red);
+    }
+    </style>
 </head>
 
 <body>
-    <h3>
-         <a href = "{{ url_for('index') }}">Penny Lane Music Recommender</a>
-    </h3>
+    <h1>
+         <a href = "{{ url_for('index') }}">🎉San Francisco Airbnb Popularity🎉</a>
+    </h1>
 
+<!-- this adds the line break -->
     <hr/>
+
+<!-- this is the action button -->
+      <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
+      <dl>
+        <div class="sub-entry">
+        <label for="years_as_host">🕰Number of years as Host🕰:</label>
+        <input type="number" size=15 name=years_as_host placeholder="Years As Host" min="0" step="any" id="years_as_host" required><br>
+
+<!-- value is what is passed to form, white text between option /option is what is shown -->
+<!-- <br> makes a line break -->
+        <label for="host_response_time">👋How quickly do Hosts respond👋:</label>
+        <select name=host_response_time id="host_response_time">
+          <option value="a few days or more">A few days or more</option>
+          <option value="within a day">Within a day</option>
+          <option value="within a few hours">Within a few hours</option>
+          <option value="within an hour">Within an hour</option>
+        </select><br>
+
+        <label for="host_response_rate">💯Host response rate💯:</label>
+        <input type="number" size=15 name=host_response_rate placeholder="response rate [0,1]" min="0" max="1" step="any" id="host_response_rate" required><br>
+
+        <label for="host_is_superhost">👑Is the Host a SUPER host👑:</label>
+        <select name=host_is_superhost id="host_is_superhost">
+          <option value=1>Yes</option>
+          <option value=0>No</option>
+        </select><br>
+
+        <label for="host_has_profile_pic">📸Does Host have profile pic📸:</label>
+        <select name=host_has_profile_pic id="host_has_profile_pic">
+          <option value=1>Yes</option>
+          <option value=0>No</option>
+        </select><br>
+
+        <label for="host_identity_verified">👥Is Host identity verified👥:</label>
+        <select name=host_identity_verified id="host_identity_verified">
+          <option value=1>Yes</option>
+          <option value=0>No</option>
+        </select><br>
+
+        <label for="host_listings_count">🤑🤑Host has how many listings🤑🤑:</label>
+        <input type="number" size=15 name=host_listings_count placeholder="# Listings > 0" min="1" id="host_listings_count" required><br>
+
+        <label for="room_type">🛋Room Type🛋:</label>
+        <select name=room_type id="room_type">
+          <option value="Entire home/apt">Entire home/apt</option>
+          <option value="Hotel room">Hotel room</option>
+          <option value="Private room">Private room</option>
+          <option value="Shared room">Shared room</option>
+        </select><br>
+
+        <label for="property_type_cat">🏡Property Type🏡:</label>
+        <select name=property_type_cat id="property_type_cat">
+          <option value="Apartment">Apartment</option>
+          <option value="Boutique hotel">Boutique hotel</option>
+          <option value="Condominium">Condominium</option>
+          <option value="Guest suite">Guest suite</option>
+          <option value="Hotel">Hotel</option>
+          <option value="House">House</option>
+          <option value="Other">Other</option>
+          <option value="Serviced apartment">Serviced apartment</option>
+          <option value="Townhouse">Townhouse</option>
+        </select><br>
+
+        <label for="accommodates_cat">👨‍👩‍👧‍👦How many are accommodated👨‍👩‍👧‍👦:</label>
+        <select name=accommodates_cat id="accommodates_cat">
+          <option value=1>2 or fewer</option>
+          <option value=2>Between 2 & 4</option>
+          <option value=3>Between 4 & 6</option>
+          <option value=4>7 or more</option>
+        </select><br>
+
+        <label for="bathrooms_cat">🛁How many bathrooms🛁:</label>
+        <select name=bathrooms_cat id="bathrooms_cat">
+          <option value=1>Fewer than 2</option>
+          <option value=2>Between 2 & 3</option>
+          <option value=3>3 or more</option>
+        </select><br>
+
+        <label for="bedrooms_cat">🚪How many bedrooms🚪:</label>
+        <select name=bedrooms_cat id="bedrooms_cat">
+          <option value=0>None</option>
+          <option value=1>1</option>
+          <option value=2>2</option>
+          <option value=3>3 or more</option>
+        </select><br>
+
+        <label for="beds_cat">🛌How many beds🛌:</label>
+        <select name=beds_cat id="beds_cat">
+          <option value=1>1</option>
+          <option value=2>2</option>
+          <option value=3>3</option>
+          <option value=4>4</option>
+          <option value=5>5 or more</option>
+        </select><br>
+
+        <label for="guests_included_cat">🙋‍♂️💁‍♀️How many guests🙋‍♂️💁‍♀️:</label>
+        <select name=guests_included_cat id="guests_included_cat">
+          <option value=1>1</option>
+          <option value=2>2</option>
+          <option value=3>3 or more</option>
+        </select><br>
+      </div>
+
+      <div class="sub-entry">
+        <label for="extra_people_cat">👯‍♀️👯👯‍♂️Extra people allowed👯‍♀️👯👯‍♂️:</label>
+        <select name=extra_people_cat id="extra_people_cat">
+          <option value=1>Yes</option>
+          <option value=0>No</option>
+        </select><br>
+
+        <label for="price">💵Price per night💵:</label>
+        <input type="number" size=15 name=price placeholder="amount omit $" min="1" id="price" step="any" required><br>
+
+        <label for="security_deposit">💰Security deposit amount💰:</label>
+        <input type="number" size=15 name=security_deposit placeholder="amount omit $" min="0" id="security_deposit" step="any" required><br>
+
+        <label for="cleaning_fee">🧺Cleaning fee cost🧺:</label>
+        <input type="number" size=15 name=cleaning_fee placeholder="amount omit $" min="0" id="cleaning_fee" step="any" required><br>
+
+        <label for="amenities_count">🍽🤿Number of amenities⛷🧩:</label>
+        <input type="number" size=15 name=amenities_count placeholder="number of amenities" min="0" id="amenities_count" required><br>
+
+        <label for="neighbourhood_cleansed">🏘🏘Neighborhood🏘🏘:</label>
+        <select name=neighbourhood_cleansed id="neighbourhood_cleansed">
+          <option value="Bayview">Bayview</option>
+          <option value="Bernal Heights">Bernal Heights</option>
+          <option value="Castro/Upper Market">Castro/Upper Market</option>
+          <option value="Chinatown">Chinatown</option>
+          <option value="Crocker Amazon">Crocker Amazon</option>
+          <option value="Diamond Heights">Diamond Heights</option>
+          <option value="Downtown/Civic Center">Downtown/Civic Center</option>
+          <option value="Excelsior">Excelsior</option>
+          <option value="Financial District">Financial District</option>
+          <option value="Glen Park">Glen Park</option>
+          <option value="Golden Gate Park">Golden Gate Park</option>
+          <option value="Haight Ashbury">Haight Ashbury</option>
+          <option value="Inner Richmond">Inner Richmond</option>
+          <option value="Inner Sunset">Inner Sunset</option>
+          <option value="Lakeshore">Lakeshore</option>
+          <option value="Marina">Marina</option>
+          <option value="Mission">Mission</option>
+          <option value="Nob Hill">Nob Hill</option>
+          <option value="Noe Valley">Noe Valley</option>
+          <option value="North Beach">North Beach</option>
+          <option value="Ocean View">Ocean View</option>
+          <option value="Outer Mission">Outer Mission</option>
+          <option value="Outer Richmond">Outer Richmond</option>
+          <option value="Outer Sunset">Outer Sunset</option>
+          <option value="Pacific Heights">Pacific Heights</option>
+          <option value="Parkside">Parkside</option>
+          <option value="Potrero Hill">Potrero Hill</option>
+          <option value="Presidio">Presidio</option>
+          <option value="Presidio Heights">Presidio Heights</option>
+          <option value="Russian Hill">Russian Hill</option>
+          <option value="Seacliff">Seacliff</option>
+          <option value="South of Market">South of Market</option>
+          <option value="Twin Peaks">Twin Peaks</option>
+          <option value="Visitacion Valley">Visitacion Valley</option>
+          <option value="West of Twin Peaks">West of Twin Peaks</option>
+          <option value="Western Addition">Western Addition</option>
+        </select><br>
+
+        <label for="minimum_nights_cat">👇Minimum nights' stay👇:</label>
+        <select name=minimum_nights_cat id="minimum_nights_cat">
+          <option value=1>7 or fewer</option>
+          <option value=2>8 to 30</option>
+          <option value=3>More than 30</option>
+        </select><br>
+
+        <label for="maximum_nights_cat">👆Maximum nights' stay👆:</label>
+        <select name=maximum_nights_cat id="maximum_nights_cat">
+          <option value=1>30 or fewer</option>
+          <option value=2>31 to 365</option>
+          <option value=3>More than 365</option>
+        </select><br>
+
+        <label for="instant_bookable">🆗Instant Booking Available🆗:</label>
+        <select name=instant_bookable id="instant_bookable">
+          <option value=1>Yes</option>
+          <option value=0>No</option>
+        </select><br>
+
+        <label for="cancellation_policy">❌Cancellation policy❌:</label>
+        <select name=cancellation_policy id="cancellation_policy">
+          <option value="flexible">flexible</option>
+          <option value="moderate">moderate</option>
+          <option value="strict">strict</option>
+          <option value="strict_14_with_grace_period">strict_14_with_grace_period</option>
+        </select><br>
+
+        <label for="require_guest_phone_verification">📞Guest phone verification required📞:</label>
+        <select name=require_guest_phone_verification id="require_guest_phone_verification">
+          <option value=1>Yes</option>
+          <option value=0>No</option>
+        </select><br>
+
+        <label for="require_guest_profile_picture">😆Guest profile picture required😆:</label>
+        <select name=require_guest_profile_picture id="require_guest_profile_picture">
+          <option value=1>Yes</option>
+          <option value=0>No</option>
+        </select><br>
+
+
+<!-- add value to database -->
+        <input type=submit value=Add>
+        </div>
+      </dl>
+    </form>
+
+    <div class="sub-entry">
     <table>
          <thead>
             <tr>
-               <th>Title</th>
-               <th>Artist</th>
-               <th>Album</th>
+               <th>Listing Popularity Score</th>
             </tr>
          </thead>
-
+<!-- this is the table saving all of the tracks -->
          <tbody>
-            {% for track in tracks %}
+            {% for listing in abb_feat_and_resp %}
                <tr>
-                   <td>{{ track.title }}</td>
-                   <td>{{ track.artist }}</td>
-                   <td>{{ track.album }}</td>
+                   <td>{{ listing.reviews_per_month_bin }}</td>
                </tr>
             {% endfor %}
          </tbody>
       </table>
-      <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
-      <dl>
-        <input type=text size=15 name=title placeholder="Title">
-        <input type=text size=15 name=artist placeholder="Artist">
-        <input type=text size=15 name=album placeholder="Album">
-        <input type=submit value=Add>
-      </dl>
-    </form>
+    </div>
 
 </body>
 </html>

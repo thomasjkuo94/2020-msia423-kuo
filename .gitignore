@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 *.py[cod]
 *.class
+.mysqlconfig
 .DS_Store
 .idea/
 .log
@@ -12,4 +13,5 @@ data/*
 !data/sample/
 !data/external/
 config/local
+config/config.env
 !.gitkeep
