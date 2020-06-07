@@ -77,9 +77,9 @@ Initiative 3: Create App Frontend
 ├── config                            <- Directory for configuration files 
 │   ├── local/                        <- Directory for keeping environment variables and other local configurations that *do not sync** to Github 
 │   ├── logging/                      <- Configuration of python loggers
-│    ├── flaskconfig.py                <- Configurations for Flask API
-│    ├── config.py                    <- Configurations for local data storage & S3 bucket location
-│    ├── CHANGEME.env                 <- Rename "config.env" if desired; Please enter S3 Access Keys & RDS Host,Port,User,Password,DB
+│   ├── flaskconfig.py                <- Configurations for Flask API
+│   ├── config.py                     <- Configurations for local data storage & S3 bucket location
+│   ├── CHANGEME.env                  <- Rename "config.env" if desired; Please enter S3 Access Keys & RDS Host,Port,User,Password,DB
 │
 ├── data                              <- Folder that contains data used or generated. Only the external/ and sample/ subdirectories are tracked by git. 
 │   ├── external/                     <- External data sources, usually reference data,  will be synced with git
@@ -130,7 +130,7 @@ config.py includes variables to configure local data storage, as well as S3 buck
 flaskconfig.py includes configurations for flask app, including local and RDS MYSQL databases.
 
 Step A discusses how to use a .env file to set environmnent variables.\
-Step B discusses how to set them using command line.\
+Step B discusses how to set them using command line.
 
 a) CHANGEME.env specifics (from ROOT):
 ```bash
