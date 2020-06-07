@@ -14,7 +14,7 @@ An understanding of the features driving a booking decision can stimulate conver
 * Success would be measured by an increase in listings categorized to bins that are considered "popular", as it implies that those listings are being booked more.
 
 ### Outcome:
-* Success was measured by AUC and Accuracy: Achieved 0.968 AUC and 86.7% on the Test Set. Success!
+* Success was measured by AUC and Accuracy: Achieved 0.968 AUC and 86.7% on the Test Set. Success!!
 
 # Backlog
 
