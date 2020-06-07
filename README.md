@@ -13,32 +13,35 @@ An understanding of the features driving a booking decision can stimulate conver
 * Success would be measured by AUC and Accuracy as this is a classification problem that lends itself to these metrics. If at least 70% of the listings are correctly classified into their popularity category, the model can be deemed successful.
 * Success would be measured by an increase in listings categorized to bins that are considered "popular", as it implies that those listings are being booked more.
 
+### Outcome:
+* Success was measured by AUC and Accuracy: Achieved 0.968 AUC and 86.7% on the Test Set. Success!
+
 # Backlog
 
 * Initiative 1: Data Preparation and Model Development
   * Epic 1: Understand and Clean Data
-    * Story 1: Identify predictors that can be removed from the dataset (medium, planned)
-    * Story 2: Check variable types to ensure correctness (medium, planned)
-    * Story 3: Change certain formatting (e.g. remove dollar signs) to simplify work (medium, planned)
-    * Story 4: Look at predictor and response distribution (medium, planned)
+    * Story 1: Identify predictors that can be removed from the dataset (medium, complete)
+    * Story 2: Check variable types to ensure correctness (medium, complete)
+    * Story 3: Change certain formatting (e.g. remove dollar signs) to simplify work (medium, complete)
+    * Story 4: Look at predictor and response distribution (medium, complete)
   * Epic 2: Engineer Features
-    * Story 1: Impute NAs where sensible (short, planned)
-    * Story 2: Bin the response variable based on distribution of bookings per month (short, planned)
+    * Story 1: Impute NAs where sensible (short, complete)
+    * Story 2: Bin the response variable based on distribution of bookings per month (short, complete)
   * Epic 3: Develop Model
-    * Story 1: Use a baseline of a logistic regression (short, planned)
-    * Story 2: Create models using Random Forest, XGBoost, GB tree, and Decision Tree (medium, planned)
-    * Story 3: Revise features if necessary based on model AUC and Accuracy (large, planned)
+    * Story 1: Use a baseline of a logistic regression (short, complete)
+    * Story 2: Create models using Random Forest, XGBoost, GB tree, and Decision Tree (medium, complete)
+    * Story 3: Revise features if necessary based on model AUC and Accuracy (large, complete)
 
 * Initiative 2: Create App Backend
   * Epic 1: Create relational database to store data
-    * Story 1: Pipe data to database from website (icebox)
-    * Story 2: Store data on AWS (icebox)
-    * Story 3: Test that data fed from database yields same results as offline (icebox)
+    * Story 1: Pipe data to database from website (complete)
+    * Story 2: Store data on AWS (complete)
+    * Story 3: Test that data fed from database yields same results as offline (complete)
 
 Initiative 3: Create App Frontend
   * Epic 1: Create front page of the app / Flask Development
-    * Story 1: Create app input, select certain features to drive model (icebox)
-    * Story 2: Display Model Output (icebox)
+    * Story 1: Create app input, select certain features to drive model (complete)
+    * Story 2: Display Model Output (complete)
 
 
 
@@ -48,12 +51,14 @@ Initiative 3: Create App Frontend
 
 - [Directory structure](#directory-structure)
 - [Running the app in Docker](#running-the-app-in-docker)
-  * [1. Set up config files](#1-set-up-config-files)
+  * [1. Set up environment variables](#1-set-up-environment-variables)
   * [2. Build the image](#2-build-the-image)
   * [3. Push data to S3](#3-push-data-to-s3)
-  * [4. Configurable database creation](#4-configurable-database-creation)
-  * [5. Running MySql](#5-running-mysql)
-
+  * [4. Model pipeline](#4-model-pipeline)
+  * [5. Running test scripts](#5-running-test-scripts)
+  * [6. Running web app](#5-running-web-app)
+  * [7. Running MySql](#5-running-mysql)
+  
 <!-- tocstop -->
 
 ## Directory structure 
@@ -105,71 +110,119 @@ Initiative 3: Create App Frontend
 ```
 ## Running the app in Docker 
 
-### 1. Set up config files
+### 1. Set up environment variables
 
 The config files for running the flask app are in the `config/` folder. 
-CHANGEME.env needs to be renamed to config.env and it includes a place to store S3 Access Keys and RDS Host,User,Password,Port,and db information.
-config.py includes variables to configure local data storage, as well as S3 bucket information
+CHANGEME.env needs to be renamed to config.env and it includes a place to store S3 Access Keys and RDS Host,User,Password,Port,and db information.\
+config.py includes variables to configure local data storage, as well as S3 bucket information\
+flaskconfig.py includes configurations for flask app, including local and RDS MYSQL databases.
+
+Step A discusses how to use a .env file to set environmnent variables.\
+Step B discusses how to set them using command line.\
 
 a) CHANGEME.env specifics (from ROOT):
 ```bash
 vi config/CHANGEME.env
 ```
 
-Fill in AWS_ACCESS_KEY, SECRET_ACCESS_KEY for your S3 bucket. Also, fill MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, DATABASE_NAME with the credentials related to the AWS RDS instance you want to access.
+Fill in for S3 bucket:
+* AWS_ACCESS_KEY_ID
+* AWS_SECRET_ACCESS_KEY. 
+Fill in for AWS RDS instance:
+* MYSQL_HOST
+* MYSQL_PORT
+* MYSQL_USER
+* MYSQL_PASSWORD
+* MYSQL_DATABASE
 
-b) config.py specifics (from ROOT):
-```bash
-vi config/config.py
-```
-
-Local database information is stored here, you may change if needed to but default local databases will persist in the `data/` folder.
-S3 configurations are stored as well. No need to change SOURCE_DATA_URL as that is our raw source. AIRBNB_RAW_LOCATION by default stores the source data in the `data/` folder. S3_BUCKET refers to the S3 bucket for the source data to be uploaded to, while S3_PATH_LOCATION refers to where the source data will be pushed.
+b) : It is not necessarily to rename CHANGEME.env to config.env as discussed in step A. The same environment variables can be passed in directly through the command line for each docker run using the -e or --env-file flags.
 
 ### 2. Build the image 
 
-The Dockerfile for running the flask app is in the `app/` folder. To build the image, run from this directory (the root of the repo): 
+The Dockerfiles for running both the model training and flask app are in the `app/` folder.\
+To build the image for the model training/testing, run from this directory (the root of the repo): 
 
 ```bash
  docker build -f app/Dockerfile -t airbnb .
 ```
 
-This command builds the Docker image, with the tag `airbnb`, based on the instructions in `app/Dockerfile` and the files existing in this directory.
+This command builds the Docker image for model training, with the tag `airbnb`, based on the instructions in `app/Dockerfile` and the files existing in this directory.
+
+To build the image for the webapp, run from this directory (the root of the repo): 
+
+```bash
+ docker build -f app/Dockerfile_app -t airbnb_webapp .
+```
+
+This command builds the Docker image for webapp, with the tag `airbnb_webapp`, based on the instructions in `app/Dockerfile_app` and the files existing in this directory.
  
 ### 3. Push data to S3
 
 To push data to S3, run from this directory: 
 
 ```bash
-docker run --env-file=config/config.env --mount type=bind,source=$(pwd)/data,target=/app/data airbnb run_s3.py
+docker run -e AWS_ACCESS_KEY_ID=<KEY> -e AWS_SECRET_ACCESS_KEY=<SECRET KEY> --mount type=bind,source=$(pwd)/data,target=/app/data airbnb run_s3.py
 ```
 
 This command runs the `run_s3.py` command in the `airbnb` image to push source data into S3.
-`--env-file=config/config/env` feeds the environment variables
 `--mount type=bind,source=$(pwd)/data,target=/app/data` mounts the source data so it persists in `data/`
 
 
-### 4. Configurable database creation
+### 4. Model pipeline
 
-There are two ways to create the database, by configuration.
-`--local` or `-l` flags can be used to push the database locally, while `--rds` or `-r` flags can be used to push the database to RDS.
+The model training pipeline uses the `boot_train.sh` script to execute `run_cleanandfeat.py` and `run_model.py`:\
+run_cleanandfeat.py has the following arguments:
+* `--download` or `-d`, which downloads from the S3 bucket into local
+* `--clean` or `-c`, which cleans the downloaded data
+* `--featurize` or `-f`, which creates features from cleaned data
+run_model.py has the following arguments:
+* `--impute` or `-i`, which imputes missing values from the cleaned & featurized data
+* `--tune_and_score` or `-ts`, which tunes the hyperparameters and outputs cross-validation & test AUC & Accuracy
+* `--full_model` or `-fm`, which trains the model on the full data set tuned with the hyperparameters and returns a trained model object and encoder for prediction
 
-Local Database:
+The pipeline runs in the order the arguments are listed, and by default `boot_train.sh` provides all of those arguments to the two scripts. Users can open the `.sh` to remove an argument if they so desire.
+
+Running Model Pipeline:
 ```bash
-docker run --env-file=config/config.env --mount type=bind,source=$(pwd)/data,target=/app/data airbnb run_database.py --local
+docker run -e AWS_ACCESS_KEY_ID=<KEY> -e AWS_SECRET_ACCESS_KEY=<SECRET KEY> --mount type=bind,source=$(pwd)/data,target=/app/data airbnb app/boot_train.sh
 ```
 
-This command runs `run_database.py` command in the `airbnb` image to create a database locally.
-*Note, that as before the data needs to be mounted in order to persist the database in the db folder.
+This command runs `app/boot_train.sh` command in the `airbnb` image to execute the end-to-end model pipeline\.
+*Note, that as before the data needs to be mounted in order to persist the database in the local data folder.
 
-RDS Database:
+
+### 5. Running test scripts
+
+Use the same image created for the model pipeline for test scripts. The test script uses the `app/boot_test.sh` and pytest to execute the `test_airbnb.py` located in the root directory.
+
+Execute the `test_airbnb.py` as follows:
 ```bash
-docker run --env-file=config/config.env airbnb run_database.py --rds
+docker run airbnb app/boot_test.sh
 ```
 
-This command runs `run_database.py` command in the `airbnb` image to create a table in rds.
+### 6. Running web app
 
-### 5. Running MySql
+This assumes you have already built the docker image `airbnb_webapp` as described in step 2. The webbapp uses the `app/boot.sh` to execute the `run_database.py` and `app.py`, both located in the root directory.\
+run_database.py has the following arguments:
+* `--truncate` or `-t`, which deletes existing observations from the local sqlite database or AWS RDS.
+app.py has no arguments, and executes the flaskapp.
+
+There are two ways to execute the web app:
+a) Local database connection
+```bash
+docker run --mount type=bind,source=$(pwd)/data,target=/app/data -p 5000:5000 --name test airbnb_webapp
+```
+b) AWS RDS database connection (you can also supply a SQLALCHEMY_DATABASE_URI directly as an environment variable)
+```bash
+docker run --env-file=config/config.env --mount type=bind,source=$(pwd)/data,target=/app/data -p 5000:5000 --name test airbnb_webapp
+```
+You should now be able to access the app at http://0.0.0.0:5000/ in your browser.
+
+This command runs the airbnb_webapp image as a container named test and forwards the port 5000 from container to your laptop so that you can access the flask app exposed through that port.
+
+If PORT in config/flaskconfig.py is changed, this port should be changed accordingly (as should the EXPOSE 5000 line in app/Dockerfile_app)
+
+### 7. Running MySql
 
 Once an RDS table is created, you can run the MySql client to access it. If you haven't already, you must create a mysql config file at root using the command `vi .mysqlconfig`. You should set MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD variables to be the same as how they were set in `config/config.env`.
 
@@ -185,5 +238,5 @@ docker run -it --rm mysql:latest mysql -h${MYSQL_HOST} -u${MYSQL_USER} -p${MYSQL
 ```
 
 The command above enables to make a connection to the RDS instance where the table is hosted.
-Specifically for this use case, access the `msia423_db` database and use the sql command `show columns in abb_feat_and_resp;` to ensure that the columns have been created. There is no data in the table at this point 5/12/2020.
+Specifically for this use case, access the `msia423_db` database and use the sql command `show columns in abb_feat_and_resp;` to ensure that the columns have been created.
 
