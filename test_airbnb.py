@@ -50,29 +50,64 @@ def test_create_response_happy():
 
     assert df_test["reviews_per_month_bin"].equals(true_df["reviews_per_month_bin"])
 
+def test_create_response_sad():
+    column_names = ['reviews_per_month']
+
+    input_df = pd.DataFrame([["1.7"],
+                        ["0.3"]], columns=column_names)
+
+    df_test = create_response_variable(input_df)
+
+    true_df = pd.DataFrame([[0],[0]],columns=["reviews_per_month_bin"])
+
+    assert df_test["reviews_per_month_bin"].equals(true_df["reviews_per_month_bin"])
+
 def test_bool_to_int_happy():
     column_names = ['truefalse']
 
     input_df = pd.DataFrame([["t"]], columns=column_names)
 
     df_test = bool_to_int(input_df,"truefalse")
+    df_test = df_test.replace(r'\\n',' ', regex=True) 
 
     true_df = pd.DataFrame([[1]],columns=column_names)
 
-    assert df_test["truefalse"][0] == (true_df["truefalse"][0])
+    assert df_test["truefalse"].equals(true_df["truefalse"])
+
+def test_bool_to_int_sad():
+    column_names = ['truefalse']
+
+    input_df = pd.DataFrame([["p"]], columns=column_names)
+
+    df_test = bool_to_int(input_df,"truefalse")
+    df_test = df_test.replace(r'\\n',' ', regex=True) 
+
+    true_df = pd.DataFrame([["p"]],columns=column_names)
+
+    assert df_test["truefalse"].equals(true_df["truefalse"])
 
 def test_percent_to_dec_happy():
     column_names = ['percdec']
 
     input_df = pd.DataFrame([["85%"],
-                              ["100%"]], columns=column_names)
+                              ["100%"],
+                              ["-99%"]], columns=column_names)
 
     df_test = percent_to_dec(input_df,"percdec")
 
     true_df = pd.DataFrame([[0.85],
-                            [1.00]],columns=column_names)
+                            [1.00],
+                            [-.99]],columns=column_names)
 
     assert df_test["percdec"].equals(true_df["percdec"])
+
+def test_percent_to_dec_sad():
+    column_names = ['percdec']
+
+    input_df = pd.DataFrame([["hello"]], columns=column_names)
+
+    with pytest.raises(ValueError):
+        df_test = percent_to_dec(input_df,"percdec")
 
 def test_years_since_happy():
     column_names = ['years_since']
@@ -90,6 +125,17 @@ def test_extract_str_count_happy():
     column_names = ['amenities_list']
 
     input_df = pd.DataFrame([["{a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z}"]], columns=column_names)
+
+    df_test = extract_str_count(input_df,"amenities_list")
+
+    true_df = pd.DataFrame([[26]],columns=["amenities_count"])
+
+    assert df_test["amenities_count"].equals(true_df["amenities_count"])
+
+def test_extract_str_count_sad():
+    column_names = ['amenities_list']
+
+    input_df = pd.DataFrame([["a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z"]], columns=column_names)
 
     df_test = extract_str_count(input_df,"amenities_list")
 
