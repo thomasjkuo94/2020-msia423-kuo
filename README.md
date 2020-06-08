@@ -215,6 +215,7 @@ docker run airbnb app/boot_test.sh
 ```
 
 ### 6. Running web app
+NOTE: Please run model pipeline first, as it outputs the TMOs (encoder & trained model needed for the webapp)
 
 This assumes you have already built the docker image `airbnb_webapp` as described in step 2. The webbapp uses the `app/boot.sh` to execute the `run_database.py` and `app.py`, both located in the root directory.\
 run_database.py has the following arguments:
