@@ -186,13 +186,25 @@ This command runs the `run_s3.py` command in the `airbnb` image to push source d
 The model training pipeline uses the `boot_train.sh` script to execute `run_cleanandfeat.py` and `run_model.py`:\
 run_cleanandfeat.py has the following arguments:
 * `--download` or `-d`, which downloads from the S3 bucket into local
-* `--clean` or `-c`, which cleans the downloaded data
+  * `--raw_path` or `-rp`, which takes user input for saving raw output. Default = `data/listings.csv`
+* `--clean` or `-c`, which cleans the downloaded raw data
+  * `--raw_path` or `-rp`, which takes user input for where raw output is stored. Default = `data/listings.csv`
+  * `--clean_path` or `-cp`, which takes user input for saving clean output. Default = `data/clean.csv`
 * `--featurize` or `-f`, which creates features from cleaned data
+  * `--clean_path` or `-cp`, which takes user input for where clean output is stored. Default = `data/clean.csv`
+  * `--feature_path` or `-fp`, which takes user input for saving featurized output. Default = `data/features.csv`
 
 run_model.py has the following arguments:
 * `--impute` or `-i`, which imputes missing values from the cleaned & featurized data
+  * `--feature_path` or `-fp`, which takes user input for where featurized output is stored. Default = `data/features.csv`
+  * `--imputed_path` or `-ip`, which takes user input for saving imputed data. Default = `data/imputed.csv`
 * `--tune_and_score` or `-ts`, which tunes the hyperparameters and outputs cross-validation & test AUC & Accuracy
+  * `--imputed_path` or `-ip`, which takes user input for where imputed data is stored. Default = `data/imputed.csv`
+  * `--scores_path` or `-sp`, which takes user input for saving scoring metrics. Default = `data/params_and_scores.txt`
 * `--full_model` or `-fm`, which trains the model on the full data set tuned with the hyperparameters and returns a trained model object and encoder for prediction
+  * `--imputed_path` or `-ip`, which takes user input for where imputed data is stored. Default = `data/imputed.csv`
+  * `--model_path` or `-mp`, which takes user input for saving trained model. Default = `data/trained_model.sav`
+  * `--encoder_path` or `-ep`, which takes user input for saving encoder. Default = `data/encoder.sav`
 
 The pipeline runs in the order the arguments are listed, and by default `boot_train.sh` provides all of those arguments to the two scripts. Users can open the `.sh` to remove an argument if they so desire.
 
