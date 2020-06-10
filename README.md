@@ -174,7 +174,7 @@ This command builds the Docker image for webapp, with the tag `airbnb_webapp`, b
 To push data to S3, run from this directory: 
 
 ```bash
-docker run -e AWS_ACCESS_KEY_ID=<KEY> -e AWS_SECRET_ACCESS_KEY=<SECRET KEY> --mount type=bind,source=$(pwd)/data,target=/app/data airbnb run_s3.py
+docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY --mount type=bind,source=$(pwd)/data,target=/app/data airbnb run_s3.py
 ```
 
 This command runs the `run_s3.py` command in the `airbnb` image to push source data into S3.
@@ -210,7 +210,7 @@ The pipeline runs in the order the arguments are listed, and by default `boot_tr
 
 Running Model Pipeline:
 ```bash
-docker run -e AWS_ACCESS_KEY_ID=<KEY> -e AWS_SECRET_ACCESS_KEY=<SECRET KEY> --mount type=bind,source=$(pwd)/data,target=/app/data airbnb app/boot_train.sh
+docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY --mount type=bind,source=$(pwd)/data,target=/app/data airbnb app/boot_train.sh
 ```
 
 This command runs `app/boot_train.sh` command in the `airbnb` image to execute the end-to-end model pipeline\.
@@ -241,7 +241,7 @@ docker run --mount type=bind,source=$(pwd)/data,target=/app/data -p 5000:5000 --
 ```
 b) AWS RDS database connection (you can also supply a SQLALCHEMY_DATABASE_URI directly as an environment variable)
 ```bash
-docker run --env-file=config/config.env --mount type=bind,source=$(pwd)/data,target=/app/data -p 5000:5000 --name test airbnb_webapp
+docker run -e SQLALCHEMY_DATABASE_URI --mount type=bind,source=$(pwd)/data,target=/app/data -p 5000:5000 --name test airbnb_webapp
 ```
 You should now be able to access the app at http://0.0.0.0:5000/ in your browser.
 
