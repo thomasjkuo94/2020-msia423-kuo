@@ -91,26 +91,12 @@ Initiative 3: Create App Frontend
 │
 ├── docs/                             <- Sphinx documentation based on Python docstrings. Optional for this project. 
 │
-├── figures/                          <- Generated graphics and figures to be used in reporting, documentation, etc
-│
-├── models/                           <- Trained model objects (TMOs), model predictions, and/or model summaries
-│
-├── notebooks/
-│   ├── archive/                      <- Develop notebooks no longer being used.
-│   ├── deliver/                      <- Notebooks shared with others / in final state
-│   ├── develop/                      <- Current notebooks being used in development.
-│   ├── template.ipynb                <- Template notebook for analysis with useful imports, helper functions, and SQLAlchemy setup. 
-│
-├── reference/                        <- Any reference material relevant to the project
-│
 ├── src/                              <- Source data for the project
 │   ├── ingestion.py                  <- Python Module imported by run_s3.py to help with ingestion
 │   ├── downloads3.py                 <- Python Module imported by run_cleanandfeat.py to download raw data from S3
 │   ├── clean.py                      <- Python Module imported by run_cleanandfeat.py to clean raw data
 │   ├── create_features.py            <- Python Module imported by run_cleanandfeat.py to create features
 │   ├── train.py                      <- Python Module imported by run_model.py to impute, tune hyperparameters, save TMOs
-│
-├── test/                             <- Files necessary for running model tests (see documentation below) 
 │
 ├── app.py                            <- Flask wrapper for running the model 
 ├── run_s3.py                         <- Simplifies the execution of ingesting data & pushing to S3 
