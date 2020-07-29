@@ -6,7 +6,7 @@ This application will be developed by Thomas Kuo, with QA support from Catherine
 To increase engagement with the platform, particularly with a focus on increasing successful bookings and stays. 
 
 ### Mission:
-Using number of reviews as a proxy for the number of stays, understand which features on a listing are primary drivers for the number of reviews a listing receives. This will inform marketplace strategy by building knowledge surrounding what attributes are considered most desirable for a listing. The application will use a Random Forest to classify a listing into 1 of 5 categories based on how many reviews per month they receive. Data will be pulled from [http://insideairbnb.com/get-the-data.html].
+Using number of reviews as a proxy for the number of stays, understand which features on a listing are primary drivers for the number of reviews a listing receives. This will inform marketplace strategy by building knowledge surrounding what attributes are considered most desirable for a listing. The application will classify a listing into 1 of 4 categories based on how many reviews per month they receive. Data will be pulled from [http://insideairbnb.com/get-the-data.html].
 An understanding of the features driving a booking decision can stimulate conversations between the company and its host partners to change listing attributes to those that are more likely to be booked.
 
 ### Success Criteria:
